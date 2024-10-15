@@ -27,7 +27,7 @@ function createWindow() {
     height: 700,
     //  change to false to use AppBar
     frame: true,
-    titleBarStyle: 'hidden',
+    // titleBarStyle: 'hidden',
     skipTaskbar: false,
     alwaysOnTop: true,
     show: true,
@@ -49,6 +49,7 @@ function createWindow() {
   const url = isDev ? `http://localhost:${port}/#/app` : urlformat;
 
   // and load the index.html of the app.
+  console.log(isDev, url);
   if (isDev) {
     window?.loadURL(url);
     // window.webContents.openDevTools();

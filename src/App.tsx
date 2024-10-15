@@ -1,11 +1,12 @@
 import React from 'react';
+import PrivateRoutes from './app/routes/PrivateRoutes';
 
 function App() {
-  return (
-    <div className="flex flex-col h-screen w-full">
-      <p>Hello World</p>
-    </div>
-  );
+  const renderRoutes = () => {
+    return <PrivateRoutes />;
+  };
+
+  return <div className="flex flex-col h-screen w-full">{renderRoutes()}</div>;
 }
 
 export default App;
