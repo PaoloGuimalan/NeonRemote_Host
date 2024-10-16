@@ -3,8 +3,8 @@
 // Native
 import { join } from 'path';
 import urlparser from 'url';
-// import os from 'os';
-// import fs from 'fs';
+import os from 'os';
+import fs from 'fs';
 
 // Packages
 import { BrowserWindow, app, ipcMain, IpcMainEvent } from 'electron';
@@ -62,6 +62,30 @@ function createWindow() {
   }
   // Open the DevTools.
   // window.webContents.openDevTools();
+
+  ipcMain.on('get-directories', (_, command) => {
+    try {
+      if (command.trim() === '') {
+        const defaultpath = os.platform() === 'linux' ? '\\' : 'C:\\';
+        const result = fs.readdirSync(defaultpath, { withFileTypes: true });
+        const directories = result.filter((flt) => flt.isDirectory()).map((mp) => `${defaultpath}\\${mp.name}`);
+        const files = result.filter((flt) => !flt.isDirectory()).map((mp) => `${defaultpath}\\${mp.name}`);
+        // console.log({ path: defaultpath, dirs: directories, files: files });
+        window.webContents.send(
+          'get-directories-output',
+          JSON.stringify({ path: defaultpath, dirs: directories, files })
+        );
+      } else {
+        const result = fs.readdirSync(command, { withFileTypes: true });
+        const directories = result.filter((flt) => flt.isDirectory()).map((mp) => `${command}\\${mp.name}`);
+        const files = result.filter((flt) => !flt.isDirectory()).map((mp) => `${command}\\${mp.name}`);
+        // console.log({ path: command, dirs: directories, files: files });
+        window.webContents.send('get-directories-output', JSON.stringify({ path: command, dirs: directories, files }));
+      }
+    } catch (ex) {
+      window.webContents.send('get-directories-error', `Error Get Directories: ${ex}`);
+    }
+  });
 
   // For AppBar
   ipcMain.on('minimize', () => {

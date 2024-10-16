@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // import sign from 'jwt-encode';
@@ -12,9 +14,9 @@ const API = CONFIG.NEONSERVICE;
 let sseNtfsSource: any = null;
 
 const SSENotificationsTRequest = (
-  dispatch: Dispatch<any>,
-  authentication: AuthenticationInterface,
-  settings: SettingsInterface
+  settings: SettingsInterface,
+  dispatch?: Dispatch<any>,
+  authentication?: AuthenticationInterface
 ) => {
   sseNtfsSource = new EventSource(`${API}/access/ssehandshake/${settings.connectionToken}`);
 
