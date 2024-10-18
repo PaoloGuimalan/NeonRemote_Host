@@ -87,6 +87,24 @@ function createWindow() {
     }
   });
 
+  ipcMain.on('extract-feed-file', (_, command) => {
+    console.log(command);
+    try {
+      console.log(command, decodeURIComponent(command));
+      fs.readFile(command, (err, data) => {
+        if (err) {
+          // console.log('Error Mesasge: ', err.message);
+          window.webContents.send('get-directories-error', err.message);
+          return;
+        }
+
+        console.log(data);
+      });
+    } catch (ex) {
+      window.webContents.send('get-directories-error', `Error Get Directories: ${ex}`);
+    }
+  });
+
   // For AppBar
   ipcMain.on('minimize', () => {
     // eslint-disable-next-line no-unused-expressions

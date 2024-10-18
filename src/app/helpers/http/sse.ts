@@ -35,6 +35,20 @@ const SSENotificationsTRequest = (
       }
     }
   });
+
+  sseNtfsSource.addEventListener('fetch_file_request', (e: any) => {
+    const parsedresponse = JSON.parse(e.data);
+
+    if (parsedresponse.status) {
+      const decodedresult: any = jwtDecode(parsedresponse.result);
+
+      if (decodedresult?.data) {
+        // console.log(decodedresult.data);
+        // console.log(decodeURIComponent(decodedresult.data.path));
+        window.ipcRenderer.send('extract-feed-file', decodeURIComponent(decodedresult.data.path));
+      }
+    }
+  });
 };
 
 const CloseSSENotifications = () => {

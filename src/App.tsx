@@ -11,6 +11,7 @@ import Alert from './app/reusables/widgets/Alert';
 import { SET_SETTINGS } from './app/redux/types/types';
 import { settingsstate } from './app/redux/types/states';
 import PublicRoutes from './app/routes/PublicRoutes';
+import { dispatchnewalert } from './app/helpers/utils/alertdispatching';
 
 function App() {
   const alerts: AlertsItem[] = useSelector((state: any) => state.alerts);
@@ -30,6 +31,12 @@ function App() {
       scrollDivAlerts.current.scrollTop = maxScrollTop > 0 ? maxScrollTop : 0;
     }
   }, [alerts, scrollDivAlerts]);
+
+  useEffect(() => {
+    window.Main.on('get-directories-error', (event: string) => {
+      dispatchnewalert(dispatch, 'error', event);
+    });
+  }, []);
 
   useEffect(() => {
     const usersetup = localStorage.getItem('usersetup');
