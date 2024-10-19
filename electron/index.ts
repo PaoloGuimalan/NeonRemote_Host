@@ -71,10 +71,10 @@ function createWindow() {
         const result = fs.readdirSync(defaultpath, { withFileTypes: true });
         const directories = result
           .filter((flt) => flt.isDirectory())
-          .map((mp) => `${defaultpath}${os.platform() === 'linux' ? '/' : '\\'}${mp.name}`);
+          .map((mp) => `${defaultpath}${os.platform() === 'linux' ? '' : '\\'}${mp.name}`);
         const files = result
           .filter((flt) => !flt.isDirectory())
-          .map((mp) => `${defaultpath}${os.platform() === 'linux' ? '/' : '\\'}${mp.name}`);
+          .map((mp) => `${defaultpath}${os.platform() === 'linux' ? '' : '\\'}${mp.name}`);
         // console.log({ path: defaultpath, dirs: directories, files: files });
         window.webContents.send(
           'get-directories-output',
