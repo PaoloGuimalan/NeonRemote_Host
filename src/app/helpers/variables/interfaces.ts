@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface LoginPayloadInterface {
   accountID: string;
   password: string;
@@ -222,4 +223,9 @@ export interface SavedAccountSessionsInterface {
   };
   deviceID: string;
   userID: string;
+}
+
+export interface IPart {
+  PartNumber: number;
+  chunk: any;
 }

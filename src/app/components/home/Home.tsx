@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable no-plusplus */
+/* eslint-disable prefer-const */
+/* eslint-disable one-var */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unused-vars */
@@ -6,11 +10,12 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/alt-text */
 import React, { useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import NeonPOSSVG from '../../../assets/NeonPOS_BG.svg';
 import { CloseSSENotifications, SSENotificationsTRequest } from '../../helpers/http/sse';
-import { SettingsInterface } from '../../helpers/variables/interfaces';
+import { IPart, SettingsInterface } from '../../helpers/variables/interfaces';
 import { GetFilesListResponseNeonRemote } from '../../helpers/http/requests';
+import { dispatchnewalert } from '../../helpers/utils/alertdispatching';
 
 function Home() {
   const settings: SettingsInterface = useSelector((state: any) => state.settings);
@@ -21,6 +26,42 @@ function Home() {
 
   const CloseSSEConnectionProcess = () => {
     CloseSSENotifications();
+  };
+
+  const dispatch = useDispatch();
+
+  const dataURLtoFile = (url: string, filename: string, mimeType: string) => {
+    if (mimeType) {
+      const file = new File([url], filename, { type: mimeType });
+      return Promise.resolve(file);
+    }
+    return fetch(url)
+      .then((res) => res.arrayBuffer())
+      .then((buf) => new File([buf], filename, { type: mimeType }));
+  };
+
+  const handleChunkFile = async (file: File) => {
+    const parts: IPart[] = [];
+    const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB chunks
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    // let currentChunk = 0;
+
+    try {
+      // const urls = await Promise.all(presigned_url);
+
+      // const chunkUploadPromises = [];
+
+      for (let i = 0; i < totalChunks; i++) {
+        const chunk = file.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+        parts.push({ PartNumber: i, chunk });
+      }
+
+      // setchunckParts(parts);
+    } catch (ex: any) {
+      throw new Error(ex);
+    }
+
+    return { totalChunks, parts };
   };
 
   useEffect(() => {
@@ -43,6 +84,24 @@ function Home() {
         GetFilesListResponseNeonRemote({
           token: JSON.stringify(finalpayload)
         });
+      });
+
+      window.Main.on('relay-feed-file', (event: any) => {
+        dataURLtoFile(event.data, event.filename, event.mimeType)
+          .then((value: any) => {
+            const relayedBlob = value;
+
+            handleChunkFile(relayedBlob)
+              .then((chunks: any) => {
+                console.log(event, chunks);
+              })
+              .catch((err) => {
+                dispatchnewalert(dispatch, 'error', err.message);
+              });
+          })
+          .catch((err) => {
+            dispatchnewalert(dispatch, 'error', err.message);
+          });
       });
     }
   }, [settings]);

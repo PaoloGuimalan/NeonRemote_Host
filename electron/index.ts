@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // Native
-import { join } from 'path';
+import path, { join } from 'path';
 import urlparser from 'url';
 import os from 'os';
 import fs from 'fs';
@@ -9,6 +9,7 @@ import fs from 'fs';
 // Packages
 import { BrowserWindow, app, ipcMain, IpcMainEvent } from 'electron';
 import isDev from 'electron-is-dev';
+import mime from 'mime-types';
 // import { exec } from 'child_process';
 
 function createWindow() {
@@ -87,18 +88,26 @@ function createWindow() {
     }
   });
 
-  ipcMain.on('extract-feed-file', (_, command) => {
-    console.log(command);
-    try {
-      console.log(command, decodeURIComponent(command));
-      fs.readFile(command, (err, data) => {
-        if (err) {
-          // console.log('Error Mesasge: ', err.message);
-          window.webContents.send('get-directories-error', err.message);
-          return;
-        }
+  const getFilesizeInBytes = (filename: string) => {
+    const stats = fs.statSync(filename);
+    const fileSizeInBytes = stats.size;
+    // return fileSizeInBytes / (1024 * 1024); in MB
+    return fileSizeInBytes;
+  };
 
-        console.log(data);
+  ipcMain.on('extract-feed-file', (_, command) => {
+    // console.log(command);
+    try {
+      // console.log(command, decodeURIComponent(command));
+      const filedata = fs.readFileSync(command);
+      const mimeType = mime.lookup(command);
+      const fileSize = getFilesizeInBytes(command);
+      const filename = path.basename(command);
+      window.webContents.send('relay-feed-file', {
+        mimeType,
+        data: filedata,
+        size: fileSize,
+        filename
       });
     } catch (ex) {
       window.webContents.send('get-directories-error', `Error Get Directories: ${ex}`);
