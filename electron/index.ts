@@ -66,7 +66,7 @@ function createWindow() {
 
   ipcMain.on('get-directories', (_, command) => {
     try {
-      if (command.trim() === '') {
+      if (command.trim() === '' || (os.platform() === 'linux' && command.trim() === '/')) {
         const defaultpath = os.platform() === 'linux' ? '/' : 'C:\\';
         const result = fs.readdirSync(defaultpath, { withFileTypes: true });
         const directories = result
