@@ -78,7 +78,7 @@ function createWindow() {
         // console.log({ path: defaultpath, dirs: directories, files: files });
         window.webContents.send(
           'get-directories-output',
-          JSON.stringify({ path: defaultpath, dirs: directories, files })
+          JSON.stringify({ path: defaultpath, dirs: directories, files, os: os.platform() })
         );
       } else {
         const result = fs.readdirSync(command, { withFileTypes: true });
@@ -89,7 +89,10 @@ function createWindow() {
           .filter((flt) => !flt.isDirectory())
           .map((mp) => `${command}${os.platform() === 'linux' ? '/' : '\\'}${mp.name}`);
         // console.log({ path: command, dirs: directories, files: files });
-        window.webContents.send('get-directories-output', JSON.stringify({ path: command, dirs: directories, files }));
+        window.webContents.send(
+          'get-directories-output',
+          JSON.stringify({ path: command, dirs: directories, files, os: os.platform() })
+        );
       }
     } catch (ex) {
       window.webContents.send('get-directories-error', `Error Get Directories: ${ex}`);
