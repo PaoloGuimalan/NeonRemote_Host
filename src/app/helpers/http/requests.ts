@@ -136,6 +136,16 @@ async function GetFilesListResponseNeonRemote(payload: GetFilesListResponseNeonR
     });
 }
 
+async function RelayPreFileTransferRequest(payload: { token: string }) {
+  return await Axios.post(`${NEONSERVICE}/device/pretransferfile`, payload)
+    .then((response) => {
+      return response;
+    })
+    .catch((err) => {
+      throw new Error(err);
+    });
+}
+
 async function CreateOrderRequest(payload: CreateOrderRequestInterface) {
   return await Axios.post(`${BACKDOOR}/api/orders/createorder`, payload)
     .then((response) => {
@@ -251,6 +261,7 @@ export {
   GetProductsListRequest,
   InitialSetupDeviceVerificationRequest,
   GetFilesListResponseNeonRemote,
+  RelayPreFileTransferRequest,
   CreateOrderRequest,
   GetOrdersListRequest,
   GetSpecificUserRequest,

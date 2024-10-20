@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import NeonPOSSVG from '../../../assets/NeonPOS_BG.svg';
 import { CloseSSENotifications, SSENotificationsTRequest } from '../../helpers/http/sse';
 import { IPart, SettingsInterface } from '../../helpers/variables/interfaces';
-import { GetFilesListResponseNeonRemote } from '../../helpers/http/requests';
+import { GetFilesListResponseNeonRemote, RelayPreFileTransferRequest } from '../../helpers/http/requests';
 import { dispatchnewalert } from '../../helpers/utils/alertdispatching';
 
 function Home() {
@@ -94,6 +94,15 @@ function Home() {
         handleChunkFile(relayedBlob)
           .then((chunks: any) => {
             console.log(event, chunks);
+            const finalpayload = {
+              deviceID: settings.deviceID,
+              toID: settings.userID,
+              file: {
+                totalChunks: chunks.totalChunks,
+                ...event
+              }
+            };
+            RelayPreFileTransferRequest({ token: JSON.stringify(finalpayload) });
           })
           .catch((err) => {
             dispatchnewalert(dispatch, 'error', err.message);
