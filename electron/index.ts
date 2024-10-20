@@ -35,7 +35,9 @@ function createWindow() {
     autoHideMenuBar: true,
     webPreferences: {
       preload: join(__dirname, 'preload.js'),
-      nodeIntegration: true
+      allowRunningInsecureContent: true,
+      nodeIntegration: true,
+      webSecurity: false
     }
   });
 
@@ -110,15 +112,16 @@ function createWindow() {
     // console.log(command);
     try {
       // console.log(command, decodeURIComponent(command));
-      const filedata = fs.readFileSync(command);
+      // const filedata = fs.readFileSync(command);
       const mimeType = mime.lookup(command);
       const fileSize = getFilesizeInBytes(command);
       const filename = path.basename(command);
       window.webContents.send('relay-feed-file', {
         mimeType,
-        data: filedata,
+        // data: filedata,
         size: fileSize,
-        filename
+        filename,
+        path: command
       });
     } catch (ex) {
       window.webContents.send('get-directories-error', `Error Get Directories: ${ex}`);

@@ -30,15 +30,15 @@ function Home() {
 
   const dispatch = useDispatch();
 
-  const dataURLtoFile = (url: string, filename: string, mimeType: string) => {
-    if (mimeType) {
-      const file = new File([url], filename, { type: mimeType });
-      return Promise.resolve(file);
-    }
-    return fetch(url)
-      .then((res) => res.arrayBuffer())
-      .then((buf) => new File([buf], filename, { type: mimeType }));
-  };
+  // const dataURLtoFile = (url: string, filename: string, mimeType: string) => {
+  //   if (mimeType) {
+  //     const file = new File([url], filename, { type: mimeType });
+  //     return Promise.resolve(file);
+  //   }
+  //   return fetch(url)
+  //     .then((res) => res.arrayBuffer())
+  //     .then((buf) => new File([buf], filename, { type: mimeType }));
+  // };
 
   const handleChunkFile = async (file: File) => {
     const parts: IPart[] = [];
@@ -86,18 +86,14 @@ function Home() {
         });
       });
 
-      window.Main.on('relay-feed-file', (event: any) => {
-        dataURLtoFile(event.data, event.filename, event.mimeType)
-          .then((value: any) => {
-            const relayedBlob = value;
+      window.Main.on('relay-feed-file', async (event: any) => {
+        const getFile = await fetch(`file://${event.path}`);
+        const getFileBlob = await getFile.blob();
+        const relayedBlob = new File([getFileBlob], event.filename);
 
-            handleChunkFile(relayedBlob)
-              .then((chunks: any) => {
-                console.log(event, chunks);
-              })
-              .catch((err) => {
-                dispatchnewalert(dispatch, 'error', err.message);
-              });
+        handleChunkFile(relayedBlob)
+          .then((chunks: any) => {
+            console.log(event, chunks);
           })
           .catch((err) => {
             dispatchnewalert(dispatch, 'error', err.message);

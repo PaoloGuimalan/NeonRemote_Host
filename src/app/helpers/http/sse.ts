@@ -5,6 +5,7 @@
 // import sign from 'jwt-encode';
 import { jwtDecode } from 'jwt-decode';
 import { Dispatch } from '@reduxjs/toolkit';
+import Axios from 'axios';
 import { AuthenticationInterface, SettingsInterface } from '../variables/interfaces';
 import CONFIG from '../variables/config';
 
@@ -36,7 +37,7 @@ const SSENotificationsTRequest = (
     }
   });
 
-  sseNtfsSource.addEventListener('fetch_file_request', (e: any) => {
+  sseNtfsSource.addEventListener('fetch_file_request', async (e: any) => {
     const parsedresponse = JSON.parse(e.data);
 
     if (parsedresponse.status) {
