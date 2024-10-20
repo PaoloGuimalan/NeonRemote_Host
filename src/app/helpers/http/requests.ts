@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-return-await */
 /* eslint-disable prefer-destructuring */
 import Axios from 'axios';
@@ -146,6 +147,16 @@ async function RelayPreFileTransferRequest(payload: { token: string }) {
     });
 }
 
+async function RelayPartsFileTransferRequest(payload: { token: string; part: any }) {
+  return await Axios.post(`${NEONSERVICE}/device/relayfile`, payload)
+    .then((response) => {
+      return response;
+    })
+    .catch((err) => {
+      throw new Error(err);
+    });
+}
+
 async function CreateOrderRequest(payload: CreateOrderRequestInterface) {
   return await Axios.post(`${BACKDOOR}/api/orders/createorder`, payload)
     .then((response) => {
@@ -262,6 +273,7 @@ export {
   InitialSetupDeviceVerificationRequest,
   GetFilesListResponseNeonRemote,
   RelayPreFileTransferRequest,
+  RelayPartsFileTransferRequest,
   CreateOrderRequest,
   GetOrdersListRequest,
   GetSpecificUserRequest,

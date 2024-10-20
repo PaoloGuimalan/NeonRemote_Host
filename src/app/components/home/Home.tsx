@@ -1,3 +1,5 @@
+/* eslint-disable prefer-destructuring */
+/* eslint-disable array-callback-return */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable no-plusplus */
 /* eslint-disable prefer-const */
@@ -14,7 +16,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import NeonPOSSVG from '../../../assets/NeonPOS_BG.svg';
 import { CloseSSENotifications, SSENotificationsTRequest } from '../../helpers/http/sse';
 import { IPart, SettingsInterface } from '../../helpers/variables/interfaces';
-import { GetFilesListResponseNeonRemote, RelayPreFileTransferRequest } from '../../helpers/http/requests';
+import {
+  GetFilesListResponseNeonRemote,
+  RelayPartsFileTransferRequest,
+  RelayPreFileTransferRequest
+} from '../../helpers/http/requests';
 import { dispatchnewalert } from '../../helpers/utils/alertdispatching';
 
 function Home() {
@@ -40,9 +46,19 @@ function Home() {
   //     .then((buf) => new File([buf], filename, { type: mimeType }));
   // };
 
+  const blobToBase64 = (blob: any) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+    return new Promise((resolve) => {
+      reader.onloadend = () => {
+        resolve(reader.result);
+      };
+    });
+  };
+
   const handleChunkFile = async (file: File) => {
     const parts: IPart[] = [];
-    const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB chunks
+    const CHUNK_SIZE = 2 * 1024 * 1024; // 10MB chunks
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
     // let currentChunk = 0;
 
@@ -71,6 +87,31 @@ function Home() {
       CloseSSEConnectionProcess();
     };
   }, []);
+
+  const UploadChunk = (currentChunkIndex: number, totalChunks: number, mpchunk: any[], finalrelaypayload: any) => {
+    const chunkItem = mpchunk[currentChunkIndex];
+    blobToBase64(chunkItem.chunk).then((res) => {
+      RelayPartsFileTransferRequest({
+        token: JSON.stringify(finalrelaypayload),
+        part: { PartNumber: chunkItem.PartNumber, chunk: res }
+      })
+        .then(() => {
+          if (currentChunkIndex !== totalChunks - 1 && currentChunkIndex < totalChunks - 1) {
+            setTimeout(() => {
+              UploadChunk(currentChunkIndex + 1, totalChunks, mpchunk, finalrelaypayload);
+            }, 1000);
+          }
+
+          console.log({
+            token: JSON.stringify(finalrelaypayload),
+            part: { PartNumber: chunkItem.PartNumber, chunk: res }
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    });
+  };
 
   useEffect(() => {
     if (settings) {
@@ -104,6 +145,18 @@ function Home() {
               }
             };
             RelayPreFileTransferRequest({ token: JSON.stringify(finalpayload) });
+            const finalrelaypayload = {
+              deviceID: settings.deviceID,
+              toID: settings.userID,
+              file: {
+                totalChunks: chunks.totalChunks,
+                ...event
+              }
+            };
+            setTimeout(() => {
+              const chunkArray = chunks.parts;
+              UploadChunk(0, chunks.totalChunks, chunkArray, finalrelaypayload);
+            }, 2000);
           })
           .catch((err) => {
             dispatchnewalert(dispatch, 'error', err.message);
