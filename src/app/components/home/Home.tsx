@@ -99,6 +99,7 @@ function Home() {
               toID: settings.userID,
               file: {
                 totalChunks: chunks.totalChunks,
+                parts: [],
                 ...event
               }
             };
