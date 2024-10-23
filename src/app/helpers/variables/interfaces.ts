@@ -229,3 +229,9 @@ export interface IPart {
   PartNumber: number;
   chunk: any;
 }
+
+export interface ITransmissionLogs {
+  type: 'upload' | 'download' | 'packing' | 'info' | 'error';
+  message: string;
+  timestamp: string | number;
+}

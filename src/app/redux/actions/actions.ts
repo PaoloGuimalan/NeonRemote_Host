@@ -2,7 +2,12 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable import/no-unresolved */
 /* eslint-disable default-param-last */
-import { AlertsItem, AuthenticationInterface, SettingsInterface } from '../../helpers/variables/interfaces';
+import {
+  AlertsItem,
+  AuthenticationInterface,
+  ITransmissionLogs,
+  SettingsInterface
+} from '../../helpers/variables/interfaces';
 import { ActionProp } from '../../helpers/variables/props';
 import { authenticationstate, settingsstate } from '../types/states';
 import {
@@ -11,7 +16,8 @@ import {
   SET_CLEAR_ALERTS,
   SET_FILTERED_ALERTS,
   SET_MUTATE_ALERTS,
-  SET_SETTINGS
+  SET_SETTINGS,
+  SET_TRANSMISSION_LOGS
 } from '../types/types';
 
 export const setauthentication = (state: AuthenticationInterface = authenticationstate, action: ActionProp) => {
@@ -51,5 +57,19 @@ export const setsettings = (state: SettingsInterface = settingsstate, action: an
       return action.payload.settings;
     default:
       return state;
+  }
+};
+
+export const settransmissionlogs = (state: ITransmissionLogs[] = [], action: any) => {
+  switch (action.type) {
+    case SET_TRANSMISSION_LOGS:
+      const currentlogs = [...state, action.payload.newlog];
+      return currentlogs
+        .sort((x, y) => {
+          return x.timestamp - y.timestamp;
+        })
+        .reverse();
+    default:
+      return state.reverse();
   }
 };
