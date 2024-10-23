@@ -33,6 +33,7 @@ function createWindow() {
     alwaysOnTop: true,
     show: true,
     autoHideMenuBar: true,
+    resizable: false,
     webPreferences: {
       preload: join(__dirname, 'preload.js'),
       allowRunningInsecureContent: true,
